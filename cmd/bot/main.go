@@ -21,15 +21,13 @@ func init() {
 }
 
 func main() {
-	// connect discord session
+	// Prepare discord session
 	var err error
 	s, err = discordgo.New("Bot " + data.ConfigDatabase.DiscordToken)
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
 	stopProcessingInteractions := s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		log.Println("Interaction from", i.GuildID, i.Member.User.ID)
-		log.Println("local values:", data.ConfigDatabase.DiscordGuildID)
 		if data.ConfigDatabase.DiscordGuildID == i.GuildID {
 			if h, ok := commands.CommandList[i.ApplicationCommandData().Name]; ok {
 				h.Handler(s, i)
@@ -39,7 +37,17 @@ func main() {
 		}
 	})
 
-	s.ChannelMessageSend(data.ConfigDatabase.DiscordMsgChannelID, "Bot Online!")
+	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
+		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
+		s.ChannelMessageSend(data.ConfigDatabase.DiscordMsgChannelID, "Bot Online!")
+	})
+
+	// Connect to discord APIs
+	err = s.Open()
+	if err != nil {
+		log.Fatalf("Cannot open the session: %v", err)
+	}
+	defer s.Close()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
