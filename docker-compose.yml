@@ -1,0 +1,7 @@
+services:
+  discord-wol-extras:
+    image: ghcr.io/johnnylin-a/discord-wol-extras
+    env_file:
+      - .env
+    restart: unless-stopped
+    network_mode: host
