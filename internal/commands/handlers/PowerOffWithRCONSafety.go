@@ -1,6 +1,10 @@
 package handlers
 
 import (
+	"crypto/tls"
+	"net/http"
+	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -46,16 +50,72 @@ var PowerOffWithRCONSafety = CommandHandler{
 			// Should still shutdown since RCON did not reply, assuming RCON service is down
 		}
 
-		// TODO Send TrueNAS shutdown
 		content := "Attempting shutting down... "
 		if rconNoReply {
 			content = "RCON check failed, will shutdown anyway assuming RCON server is offline... "
 		}
 
+		// Sending shutdown to TRUENAS
+		fullurl := ""
+		if isHTTPS, _ := strconv.ParseBool(data.ConfigDatabase.TruenasIsHTTPS); isHTTPS {
+			fullurl += "https://"
+		} else {
+			fullurl += "http://"
+		}
+		fullurl += data.ConfigDatabase.TruenasHost + "/api/v2.0/system/shutdown"
+		nativeUrl, err := url.Parse(fullurl)
+		if err != nil {
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: content + "URL malformed!",
+				},
+			})
+			return
+		}
+
+		insecureMode, _ := strconv.ParseBool(data.ConfigDatabase.TruenasIsMismatchCertForTLS)
+
+		httpClient := &http.Client{
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{
+					InsecureSkipVerify: insecureMode,
+				},
+			},
+		}
+
+		headers := http.Header{}
+		headers.Add("Authorization", "Bearer "+data.ConfigDatabase.TruenasAPIKey)
+
+		resp, err := httpClient.Do(&http.Request{
+			URL:    nativeUrl,
+			Header: headers,
+			Method: http.MethodPost,
+		})
+		if err != nil {
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: content + "Failed to send shutdown request!",
+				},
+			})
+			return
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: content + "Failed shutdown!",
+				},
+			})
+			return
+		}
+
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
-				Content: content,
+				Content: content + "Successful shutdown.",
 			},
 		})
 	},
