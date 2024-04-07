@@ -10,7 +10,7 @@ var PowerOn = CommandHandler{
 	Handler: func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		content := "Failed to power on..."
 		err := wol.Wake(data.ConfigDatabase.WolMAC, data.ConfigDatabase.WolBroadcastIP+":9")
-		if err != nil {
+		if err == nil {
 			content = "Powered on."
 		}
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
