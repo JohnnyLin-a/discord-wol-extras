@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"slices"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
@@ -29,10 +30,13 @@ func main() {
 	}
 	stopProcessingInteractions := s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		if data.ConfigDatabase.DiscordGuildID == i.GuildID {
-			if h, ok := commands.CommandList[i.ApplicationCommandData().Name]; ok {
-				h.Handler(s, i)
-			} else {
-				handlers.Placeholder.Handler(s, i)
+			log.Println(i.Member.User.Username, "ROLES:", i.Member.Roles)
+			if slices.Contains(i.Member.Roles, data.ConfigDatabase.DiscordAllowedRoleID) {
+				if h, ok := commands.CommandList[i.ApplicationCommandData().Name]; ok {
+					h.Handler(s, i)
+				} else {
+					handlers.Placeholder.Handler(s, i)
+				}
 			}
 		}
 	})

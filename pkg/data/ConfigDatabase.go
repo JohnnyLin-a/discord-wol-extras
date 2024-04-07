@@ -4,6 +4,7 @@ type TConfigDatabase struct {
 	DiscordToken                string `env:"DISCORD_TOKEN"`
 	DiscordGuildID              string `env:"DISCORD_GUILD_ID"`
 	DiscordMsgChannelID         string `env:"DISCORD_MSG_CHANNEL_ID"`
+	DiscordAllowedRoleID        string `env:"DISCORD_ALLOWED_ROLE_ID"`
 	TruenasHost                 string `env:"TRUENAS_HOST"`
 	TruenasAPIKey               string `env:"TRUENAS_API_KEY"`
 	TruenasIsHTTPS              string `env:"TRUENAS_IS_HTTPS"`
