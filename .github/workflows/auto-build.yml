@@ -8,6 +8,9 @@ on:
 
 jobs:
   build-push:
+    permissions:
+      contents: read
+      packages: write
     defaults:
       run:
         shell: bash
