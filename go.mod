@@ -4,6 +4,7 @@ go 1.22.2
 
 require (
 	github.com/bwmarrin/discordgo v0.28.1
+	github.com/gorcon/rcon v1.3.5
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/johnnylin-a/go-wol-lib v1.0.0
 )

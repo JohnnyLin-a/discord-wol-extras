@@ -7,5 +7,13 @@ import (
 var CommandList = map[string]handlers.CommandHandler{}
 
 func init() {
-	CommandList[handlers.Ping.ApplicationCommand.Name] = handlers.Ping
+	enabledCommands := []handlers.CommandHandler{
+		handlers.Ping,
+		handlers.PowerOn,
+		handlers.PowerOffWithRCONSafety,
+		handlers.RestartRCON,
+	}
+	for _, v := range enabledCommands {
+		CommandList[v.ApplicationCommand.Name] = v
+	}
 }

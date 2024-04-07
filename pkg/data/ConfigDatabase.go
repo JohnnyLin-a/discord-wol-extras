@@ -10,6 +10,9 @@ type TConfigDatabase struct {
 	TruenasIsMismatchCertForTLS string `env:"TRUENAS_IS_MISMATCH_CERT_FOR_TLS"`
 	WolMAC                      string `env:"WOL_MAC"`
 	WolBroadcastIP              string `env:"WOL_BROADCAST_IP"`
+	RCONHost                    string `env:"RCON_HOST"`
+	RCONPort                    string `env:"RCON_PORT"`
+	RCONPassword                string `env:"RCON_PASSWORD"`
 }
 
 var ConfigDatabase TConfigDatabase
