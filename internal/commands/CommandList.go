@@ -12,6 +12,7 @@ func init() {
 		handlers.PowerOn,
 		handlers.PowerOffWithRCONSafety,
 		handlers.RestartRCON,
+		handlers.Status,
 	}
 	for _, v := range enabledCommands {
 		CommandList[v.ApplicationCommand.Name] = v
